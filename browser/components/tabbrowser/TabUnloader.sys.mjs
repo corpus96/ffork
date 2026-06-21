@@ -348,6 +348,28 @@ export var TabUnloader = {
     "nsIObserver",
     "nsISupportsWeakReference",
   ]),
+
+  /**
+   * NEW FEATURE: Physically sorts tabs in the browser window.
+   * Priority 1: (most important/highest weight) goes to the far letft
+   */
+  async rearrangeTabsInBrowser(){
+    /*1. Get the list of tabs (Firefox will return the least important first)*/
+    let sortedTabs = await this.getSortedTabs();
+
+    /*2. Reverse the list so the most important tabs is at the beginning (index 0)*/
+    sortedTabs.reverse();
+
+    /*Loop though the tabs and move them left to right*/
+    let newPositionIndex = 0;
+    for(let tabInfo of sortedTabs){
+      /*gBrowser is the native UI manager, moveTabTo physically shifts the tab*/
+      tabInfo.gBrowser.moveTabTo(tabInfo.tab, newPositionIndex);
+
+      /*Increase the position number for the next tab*/
+      newPositionIndex++;
+    }
+  },
 };
 
 /**
