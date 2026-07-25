@@ -2205,6 +2205,12 @@
   value: true
   mirror: always
 
+#Adding configuration to display memory usage of a tab hovering it
+- name: browser.tabs.showMemoryUsage
+  type: bool
+  value: false
+  mirror: never
+
 # When this pref is enabled, opaque response is only allowed to enter the
 # content process if it's a response for media (audio, image, video), CSS, or
 # JavaScript.
@@ -21232,6 +21238,9 @@
   type: uint32_t
   value: 20
   mirror: always
+
+
+
 
 #---------------------------------------------------------------------------
 # End of prefs

@@ -27,6 +27,58 @@ const ZERO_DELAY_ACTIVATION_TIME = 300;
 // and the open panel without having it disappear before they get there.
 const HOVER_PANEL_STICKY_TIME = 100;
 
+//Cache ProcInfo Briefly so we don´t have to fetch OS-level query each time we 
+//hover on a tab.
+const PROC_INFO_MAX_AGE_MS = 2000
+let _procInfoCache = null;
+let _procInfoCacheTime = 0;
+
+async function getCachedProcInfo()
+{
+  const now = Date.now();
+  if(_procInfoCache || now - _procInfoCacheTime > PROC_INFO_MAX_AGE_MS)
+  {
+    _procInfoCache = await ChromeUtils.requestProcInfo();
+    _procInfoCacheTime = now;
+  }
+
+  return _procInfoCache;
+}
+
+/*Get memory (bytes) for hosting tab*/
+async function getTabMemoryBytes(tab)
+{
+  if(!Services.prefs.getBoolPref("browser.tabs.showMemoryUsage", false))
+  {
+    return null;
+  }
+
+  const outerWindowId = tab.linkedBrowser?.browsingContext?.currentWindowGloab?.outerWindowId;
+
+  if(!outerWindowId)
+  {
+    return null;
+  }
+
+  const parent = await getCachedProcInfo();
+  for(const proc of [parent, ...parent.children])
+  {
+    if(proc.windows?.some(w => w.outerWindowId === outerWindowId))
+    {
+      return proc.memory;
+    }
+  }
+
+  return null;
+}
+
+function formatMemoryBytes(bytes)
+{
+  const mb = bytes / (1024 * 1024);
+
+  return mb >= 1024 ? `${(mb / 1024).toFixed(2)} GB` : `${Math.round(mb)} MB`;
+}
+
 /**
  * Shared module that contains logic for the tab hover preview (THP) and tab
  * group hover preview (TGHP) panels.
