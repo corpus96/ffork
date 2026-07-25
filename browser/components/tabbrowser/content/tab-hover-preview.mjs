@@ -33,27 +33,25 @@ const PROC_INFO_MAX_AGE_MS = 2000
 let _procInfoCache = null;
 let _procInfoCacheTime = 0;
 
-async function getCachedProcInfo()
-{
+async function getCachedProcInfo() {
   const now = Date.now();
-  if(_procInfoCache || now - _procInfoCacheTime > PROC_INFO_MAX_AGE_MS)
-  {
+  if (!_procInfoCache || now - _procInfoCacheTime > PROC_INFO_MAX_AGE_MS) {
     _procInfoCache = await ChromeUtils.requestProcInfo();
     _procInfoCacheTime = now;
   }
-
   return _procInfoCache;
 }
 
-/*Get memory (bytes) for hosting tab*/
+/*Get memory (bytes) for hosting tab
+ *Return null if process unavailable*/
 async function getTabMemoryBytes(tab)
 {
-  if(!Services.prefs.getBoolPref("browser.tabs.showMemoryUsage", false))
+  if(!Services.prefs.getBoolPref("browser.tabs.showMemoryUsageTabHover", false))
   {
     return null;
   }
 
-  const outerWindowId = tab.linkedBrowser?.browsingContext?.currentWindowGloab?.outerWindowId;
+  const outerWindowId = tab.linkedBrowser?.browsingContext?.currentWindowGlobal?.outerWindowId;
 
   if(!outerWindowId)
   {
@@ -72,6 +70,7 @@ async function getTabMemoryBytes(tab)
   return null;
 }
 
+/* Convert memory size given in bytes into a more human-readable format, either MB or GB*/
 function formatMemoryBytes(bytes)
 {
   const mb = bytes / (1024 * 1024);
@@ -697,6 +696,11 @@ class TabPanel extends HoverPanel {
         "";
     }
 
+    const memoryBytes = await getTabMemoryBytes(this.#tab);
+    this.panelElement.querySelector(".tab-preview-memory").textContent =
+      memoryBytes != null ? formatMemoryBytes(memoryBytes) : "";
+
+
     if (this._prefUseTabNotes && lazy.TabNotes.isEligible(this.#tab)) {
       let note = await lazy.TabNotes.get(this.#tab);
 
@@ -738,6 +742,7 @@ class TabPanel extends HoverPanel {
         })
       );
     }
+
 
     this.#movePanel();
   }

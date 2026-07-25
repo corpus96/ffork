@@ -2206,7 +2206,7 @@
   mirror: always
 
 #Adding configuration to display memory usage of a tab hovering it
-- name: browser.tabs.showMemoryUsage
+- name: browser.tabs.showMemoryUsageTabHover
   type: bool
   value: false
   mirror: never
