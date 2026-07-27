@@ -58,6 +58,10 @@
   justify-content: space-between;
 }
 
+.tab-preview-memory {
+  color: var(--text-color-deemphasized);
+}
+
 /* Container indicator pill, matching the URL-bar one. */
 .tab-preview-container-indicator {
   display: flex;
