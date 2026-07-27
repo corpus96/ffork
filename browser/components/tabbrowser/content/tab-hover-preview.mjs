@@ -698,7 +698,7 @@ class TabPanel extends HoverPanel {
 
     const memoryBytes = await getTabMemoryBytes(this.#tab);
     this.panelElement.querySelector(".tab-preview-memory").textContent =
-      memoryBytes != null ? formatMemoryBytes(memoryBytes) : "";
+      memoryBytes != null ? `memory: ${formatMemoryBytes(memoryBytes)}` : "";
 
 
     if (this._prefUseTabNotes && lazy.TabNotes.isEligible(this.#tab)) {
